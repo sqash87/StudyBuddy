@@ -1,0 +1,18 @@
+
+{%extends 'main.html'%}
+
+{%block content%}
+
+<div>
+    <!-- The resource/URL where data is to be sent for processing when the form is submitted. 
+        If this is not set (or set to an empty string), then the form will be submitted back to the current page URL.
+    -->
+    <form method="POST" action=" ">  <!--  POST methods are used to create a new resource into the collection of resources. -->
+        {%csrf_token%}
+        {{form.as_p}} <!-- from1 is the key of the context disctionary-->
+        <input type="submit" value="Submit"/>
+    
+    </form>
+</div>
+
+{% endblock content%}

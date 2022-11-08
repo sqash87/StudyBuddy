@@ -1,9 +1,16 @@
 
 
+ 
+
  <div class="activities">
     <div class="activities__header">
       <h2>Recent Activities</h2>
     </div>
+     <!-- 
+      "room_mesaages" is a variable of of home() which contains 
+       all the messages of a particular room. I can access to "room_messages" 
+       from this template.
+     -->
     {% for message in room_messages %}
     <div class="activities__box">
       <div class="activities__boxHeader roomListRoom__header">
@@ -16,6 +23,7 @@
             <span> {{message.created|timesince}} ago</span>
           </p>
         </a>
+        <!-- Only the author of the message can delete the message. -->
         {% if request.user == message.user%}  
         <div class="roomListRoom__actions">
           <a href="{% url 'delete-message' message.id %}">
@@ -29,6 +37,10 @@
         </div>
         {% endif %}
       </div>
+      <!-- 
+        The for loop prints out each row one at a time. 
+        so for each user it prnits out in what room he or she has wtitten
+       -->
       <div class="activities__boxContent">
         <p>replied to post “<a href="{% url 'room' message.room.id %}">{{message.room}}</a>”</p>
         <div class="activities__boxRoomContent">

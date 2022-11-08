@@ -14,23 +14,28 @@ from .forms import RoomForm, UserForm, MyUserCreationForm
 # App templates go inside the app folders
 # Project templates go inside the root folder. 
 
-
 def loginPage(request):
     page = 'login'
+    
     #if the user is already loged in, don't let them re-login
     if request.user.is_authenticated:
             return redirect ('home')
     
     if request.method == 'POST':
-        email= request.POST.get('email')                  #getting from the frontend
-        password= request.POST.get('password')                  #getting from the frontend
+        #getting email from the frontend 
+        email= request.POST.get('email')  
+        #getting dpassword from the frontend                 
+        password= request.POST.get('password')            
          
+        #getting the user with the email
         try:
             user = User.objects.get(email=email)
         except:
             messages.error(request, 'User does not exit.') 
-    
-    
+        
+        # authenticate() should check the credentials it gets and return a user object
+        # that matches those credentials if the credentials are valid.  
+
         user = authenticate(request, email=email, password=password)
     
         if user is not None:
@@ -38,8 +43,9 @@ def loginPage(request):
             return redirect('home') 
         else:
             messages.error(request, 'Username or password does not exist.')
-   
+    
     context = {'page': page}
+    #rendering(send it back to the html page.) the "login_register.html" page with context
     return render(request, 'base/login_register.html', context)
 
 def logoutUser(request):
@@ -48,20 +54,30 @@ def logoutUser(request):
 
 
 def registerPage(request):
-    form = MyUserCreationForm()                            #creating a form
+    #creating a form object 
+    form = MyUserCreationForm()                            
     if request.method == 'POST':
-        form = MyUserCreationForm(request.POST)                  #pass in the user data and then get the form.
-        if form.is_valid():                                    #Validating the credentials in the form
-            user = form.save(commit=False)                     #get the user from the form.
-            user.username = user.username.lower()              #lowercase the username that was created.
+        # "request.post" will contain the user data when they click the register button.
+        #  Then creating a "form" object by passing the user data into the "MyUserCreationForm" class
+        #  Now, form contains user name.
+        form = MyUserCreationForm(request.POST)
+        
+        #Validating the credential of the user or the form               
+        if form.is_valid():                                    
+            user = form.save(commit=False) 
+            #lowercase the username that was created.                    
+            user.username = user.username.lower()            
+         
             user.save() 
             login(request, user)
             return redirect ('home') 
         else:
             messages.error(request, 'An Error Occured')
 
-
     return render(request, 'base/login_register.html', {'form': form})
+
+
+#These functions here render the data out inside the html template.
 
 def home(request):
     # if the requested url 'q' is not empty
@@ -81,8 +97,11 @@ def home(request):
 
 #this room function will call the room.html.
 def room(request, pk):
-    room = Room.objects.get(id=pk)                                
+    #Getting a particlular key with the primary key,
+    room = Room.objects.get(id=pk) 
+    #getting the messages in that room.                               
     room_messages = room.message_set.all()
+    #getting all the participants of that room.
     participants = room.participants.all()
     
     # This creates an object 'message' and inserts data into user, room, and body columns.
@@ -92,18 +111,27 @@ def room(request, pk):
             room= room,
             body= request.POST.get('body')
         )
-        room.participants.add(request.user)                                                #using room object to add an authenticated user in particpant column.
+        #using room object to add an authenticated user in particpant column.
+        room.participants.add(request.user)                                                
         return redirect('room', pk=room.id)
-                                                                                              
-    context = {'room': room, 'room_messages': room_messages, 'participants': participants} #passing vlaues as dictionary  
-    return render(request, 'base/room.html', context)                                      # Rendering html file with the context dictionary.      
+
+    #passing vlaues as dictionary 
+    #Rendering html file with the context dictionary.                                                                                              
+    context = {'room': room, 'room_messages': room_messages, 'participants': participants} 
+    return render(request, 'base/room.html', context)                                      
+
 
 def userProfile(request, pk):
+    #getting the user with the primary key.
     user = User.objects.get(id=pk)
-    rooms = user.room_set.all() #getting rooms associated with the users.
-    room_messages = user.message_set.all() # getting all the messages related to the user.
-    topics = Topic.objects.all() #getting all the topics name from the Topic.
+    #since user column was added into the room table, I can access the rooms created by any particular user.
+    rooms = user.room_set.all()
+    #since user column was added into the message table, I can get meaages of a particular user
+    room_messages = user.message_set.all() 
+    topics = Topic.objects.all() 
     context = {'user': user, 'rooms': rooms, 'room_messages': room_messages, 'topics': topics}
+    
+    #rendering the /profile.html with the context dictionary.
     return render(request, 'base/profile.html', context)
 
 
@@ -114,15 +142,31 @@ def userProfile(request, pk):
 @login_required(login_url='/login')
 
 def createRoom(request):
+    
+    # "RoomForm" is a class that has all the data fields of Room Model.
+    # "from" is an object in this function which will be passed as context dictionary
+    # into the "room_form.html" when renderimg it and thefore, "room_form.html" page will have
+    # access to this form. Input data from the user can be straight written into the Room model 
+    # using this form. 
+    
     form = RoomForm()
     topics = Topic.objects.all()
     if request.method == 'POST' :
+        
+        #using request method to get the name of the topic from the user input.
         topic_name =request.POST.get('topic')
+        
+        #creating a row contains topic name in the topic model
         topic,created = Topic.objects.get_or_create(name=topic_name)
+        
+        # creating data into the 4 columns of Room Model.
         Room.objects.create(
+            
             host=request.user,
             topic=topic,
+            # 'name' keyword has to be the same as the one inside "room_form.html"
             name= request.POST.get('name'),
+
             description = request.POST.get('description')
         )
         return redirect('home')                   
@@ -133,12 +177,20 @@ def createRoom(request):
 #Restricting unauthoried users from update a room and redirecting them to login page.
 @login_required(login_url='/login')
 def updateRoom(request, pk):
-    room = Room.objects.get(id=pk)                    # getting room number id with the primary key
-    form = RoomForm(instance=room)                    # This form will be oprefilled with the room value
+    #getting room number with id that we are gonna update.
+    room = Room.objects.get(id=pk) 
+    # "instance" prefills the form with the existig data.                
+    form = RoomForm(instance=room)                    
     topics = Topic.objects.all()
+    
+    #Only the creator of the room can edit the room.
     if request.user != room.host:
         return HttpResponse('User is not allowded here.')
-
+    
+    # 2: When the "form" inside the "room_form.html" sends back the inputted data 
+    #    into the same page which is "room_form.html", 
+    #    "if request.method == 'POST'": section of codes get activated 
+    #    and rteurn back to the homepage.
     if request.method == 'POST':
         topic_name =request.POST.get('topic')
         topic,created = Topic.objects.get_or_create(name=topic_name) 
@@ -147,51 +199,71 @@ def updateRoom(request, pk):
         room.description = request.POST.get('description')
         room.save()
         return redirect('home')                   #sending user back to he homepage.
+    
     context = {'form': form, 'topics': topics, 'room':room}
+    # 1: Render the "room_form.html" with the prefilled data "form" from the room model 
+    #    and then if request.method == 'POST': section of code gets activated when "form" inside the 
+    #    "room_form.html" sends the inptted data back to the same page. 
     return render (request, 'base/room_form.html', context)
 
 
 #Restricting unauthoried users from deleting a room and redirecting them to login page.
 @login_required(login_url='/login')
 def deleteRoom(request, pk):
-    room = Room.objects.get(id=pk)                     #getting room number id with the primary key
     
+    #getting room number id with the primary key
+    room = Room.objects.get(id=pk)                    
+    
+    #only the author of the room can delete the room.
     if request.user != room.host:
         return HttpResponse('User is not allowded here.')
 
+    #if the user confirm the "delete" button, this part of the code will be invoked.
     if request.method == 'POST':
-         room.delete() #removing the item from the database.
+         room.delete() 
          return redirect('home')
-
-    return render (request, 'base/delete.html', {'obj': room}) # after deleting the room rednding the html tag.
+    #initially, deleteRoom() will render the "delete.html" 
+    return render (request, 'base/delete.html', {'obj': room}) 
 
 
 @login_required(login_url='/login')
 def deleteMessage(request, pk):
-    message = Message.objects.get(id=pk)                     #getting room number id with the primary key
-    
+   
+    message = Message.objects.get(id=pk)                     
+    #only the auther of the "text" can delete his or her text 
     if request.user != message.user:
         return HttpResponse('User is not allowded here.')
 
+    #if the user hit "delete" this section of the code will be invoked.
     if request.method == 'POST':
-         message.delete() #removing the item from the database.
+         #removing the item from the database.
+         message.delete() 
          return redirect('home')
+    
+    #initially, deleteMessage() will render the "delete.html" 
+    return render (request, 'base/delete.html', {'obj': message}) 
 
-    return render (request, 'base/delete.html', {'obj': message}) # after deleting the room rednding the html tag.
 
-
+#user has to be logged in for this function to be invoked.
 @login_required(login_url='/login')
 def updateUser(request):
     user = request.user
+    #prefilled the "form" with the user's existing data from the user model.
     form = UserForm(instance=user)
-
+    
+   
+    # if < Form > tag sends a request using "post" method,
+    # This section will be invoked in case user decides to chnage anything. 
     if request.method == 'POST':
+        #creating a new form with the request data
         form = UserForm(request.POST, request.FILES, instance=user)
+        #validating the form
         if form.is_valid():
             form.save()
+            #redirect the page to the user-profile.
             return redirect('user-profile', pk=user.id)
 
-
+    # render the "update-user.html" first with the form.
     return render(request, 'base/update-user.html', {'form':form})
 
 

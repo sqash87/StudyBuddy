@@ -1,8 +1,12 @@
 
 
 
-<!-- href calls urls, urls call view functions amd view functions render the html tags. -->
-<!-- Inside the href you pass in url name that you specified in the url tag.-->
+<!--
+  Here "room" is the name of the model and 
+  "rooms" is the variable of home(). 
+  "rooms" contains all the rooms of of the home page.
+  Template has access to the variables of any function. 
+-->
 
 {% for room in rooms %}
 
@@ -12,15 +16,20 @@
         <div class="avatar avatar--small">
           <img src="{{room.host.avatar.url}}" />
         </div>
+        <!-- When user clicks on the "username" it takes them to the user profile-->
+        <!-- ""room" model contains ""host model so I can access to host.name from room -->
         <span>@{{room.host.username}}</span>
       </a>
       <div class="roomListRoom__actions">
-        <span>{{room.created|timesince}} ago </span>
+        <span>{{r |timesince}} ago </span>
       </div>
     </div>
+    
     <div class="roomListRoom__content">
+      <!-- when user clicks on the "room" name, it takes them to the room page.-->
       <a href="{%url 'room' room.id %}"> {{room.name}}</a>
     </div>
+    
     <div class="roomListRoom__meta">
       <a href="{%url 'room' room.id %}" class="roomListRoom__joined">
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -38,6 +47,7 @@
             d="M12 16c3.859 0 7-3.141 7-7s-3.141-7-7-7c-3.859 0-7 3.141-7 7s3.141 7 7 7zM12 4c2.757 0 5 2.243 5 5s-2.243 5-5 5-5-2.243-5-5c0-2.757 2.243-5 5-5z"
           ></path>
         </svg>
+         <!-- counting room participants -->
         {{room.participants.all.count}} Joined
       </a>
       <p class="roomListRoom__topic">{{room.topic.name}}</p>
@@ -45,6 +55,9 @@
   </div>
 
 {% endfor %}
+
+
+
 
 
 

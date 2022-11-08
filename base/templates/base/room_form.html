@@ -2,11 +2,15 @@
 
 {% block content %}
 
+
   <main class="create-room layout">
     <div class="container">
       <div class="layout__box">
         <div class="layout__boxHeader">
           <div class="layout__boxTitle">
+            
+            <!--  <a href="{% url 'home' %}"> means When clicking arrow-left, page will be redieected to home page.  -->
+
             <a href="{% url 'home' %}">
               <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
                 <title>arrow-left</title>
@@ -15,19 +19,34 @@
                 </path>
               </svg>
             </a>
+            
             <h3>Create/Update Study Room</h3>
           </div>
         </div>
+        
         <div class="layout__body">
-          <form class="form" action="" method = "POST">
-            {% csrf_token %}
 
+
+          <!-- 
+               This form will collect user input data and send them to the current page.
+               action attribute refers the destination of where the input's data will be sent. 
+               if action attribute is empty, that means the input's data will be sent to the current page.  
+          -->
+          
+          <form class="form" action="" method = "POST">
+            
+            {% csrf_token %}
+            
+            
             <div class="form__group">
+              <!-- Getting input from the user  -->
               <label for="room_topic"> Enter a Topic </label>
-              <input required type="text" value="{{room.topic.name}}"name="topic" list="topic-list"/>
+              <input required type="text" value="{{room.topic.name}}" name="topic" list="topic-list"/>
+              <!-- This part is for showing options already created topic.  -->
               <datalist id="topic-list">
                 <select id="room_topic">
                   {% for topic in topics %}
+                   <!-- The white part {{topic.name}} prints out topic names.-->
                   <option value="{{topic.name}}"> {{topic.name}} </option>
                   {% endfor %}
                   
@@ -42,6 +61,8 @@
             
             <div class="form__group">
               <label for="room_name"> Room Name </label>
+               <!-- form is an object of Class "Room_Form" which can be used for user input because "form  -->
+         
               {{form.name}}
             </div>
 

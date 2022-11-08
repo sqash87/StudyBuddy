@@ -1,10 +1,11 @@
 
+  
   {% extends 'main.html' %}
   {% block content %}
   
   <main class="profile-page layout layout--3">
     <div class="container">
-      <!-- Topics Start -->
+      <!-- This part prints all the topics that have been created so far. -->
       {% include 'base/topics_components.html' %}
       <!-- Topics End -->
 
@@ -17,9 +18,14 @@
             </div>
           </div>
           <div class="profile__info">
+             <!-- 
+              Since I passed "user" as a dictionary inside the render() of userprofile() , 
+              I have access to that particular user model's columns inside this html page. 
+             -->
             <h3>{{user.username}}</h3>
             <p>@{{user.username}}</p>
-            <!-- updating from the userprofile -->
+        
+            <!-- Only the owner of the room can Edit the profile -->
             {% if request.user == user %}
             <a href="{% url 'update-user' %}" class="btn btn--main btn--pill">Edit Profile</a>
             {% endif %}
@@ -27,7 +33,10 @@
           <div class="profile__about">
             <h3>About</h3>
             <p>
-
+              <!-- 
+                I have access to user's bio since I passed "user" inside the render() 
+                of userprofile() 
+              -->
               {{user.bio}}
       
             </p>
@@ -40,11 +49,12 @@
             </h2>
           </div>
         </div>
+         <!-- This prints all the feeds component created by that particular user. -->
         {% include 'base/feed_component.html' %}
       </div>
       <!-- Room List End -->
 
-      <!-- Activities Start -->
+      <!-- This prints all the Recent activities  -->
       {% include 'base/activity_component.html' %}
       <!-- Activities End -->
     </div>

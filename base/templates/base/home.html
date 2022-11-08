@@ -1,8 +1,12 @@
 
+
+
+<!-- Since I extended main.html, I have access to main.html contents -->
+
+
 {% extends 'main.html' %}
 
 {% block content %}
-
 
 
 <main class="layout layout--3">
@@ -15,6 +19,8 @@
 
     <!-- Room List Start -->
     <div class="roomList">
+      
+      <!-- For Mobile -->
       <div class="mobile-menu">
         <form action="{% url 'home' %}" class="header__search">
           <label>
@@ -32,11 +38,18 @@
           <a class="btn btn--main btn--pill" href="{% url 'activity' %}">Recent Activities</a>
         </div>
       </div>
+      
+      <!-- For Computers -->
+      
       <div class="roomList__header">
         <div>
           <h2>Study Room</h2>
           <p> {{room_count}} Rooms available</p>
         </div>
+        <!-- 
+            {% url 'create-room' %}" means When clicking create room, page will be redieected to "create-room" link
+             which then will actiave view function "createroom". 
+        -->
         <a class="btn btn--main" href="{% url 'create-room' %}">
           <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
             <title>add</title>
@@ -47,12 +60,15 @@
           Create Room
         </a>
       </div>
-
+      <!-- Prints out all the rooms components inside the home page. -->
       {% include 'base/feed_component.html' %}
     </div>
+    
     <!-- Room List End -->
 
     <!-- Activities Start -->
+    
+    <!-- Print out activities inside the homepage. -->
     {% include 'base/activity_component.html' %}
 
     <!-- Activities End -->

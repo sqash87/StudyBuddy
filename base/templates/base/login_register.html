@@ -1,7 +1,16 @@
+
 {% extends 'main.html' %}
+
+<!-- This html file for having user login and signup  -->
+
+<!-- 
+  This "login_register.html" will be rendered when a request is sent 
+  into the "login/"" which will then invoke Login_page() which will render this html.
+-->
 
 {% block content %}
     <main class="auth layout">
+      <!-- Login Page -->
       {% if page == 'login' %}
       <div class="container">
         <div class="layout__box">
@@ -12,15 +21,22 @@
           </div>
           <div class="layout__body">
             <h2 class="auth__tagline">Find your study partner</h2>
-
+            
+            <!-- Form data will be sent to the current page with POST-->
             <form class="form" action="" method="POST">
               {% csrf_token %}
+              
+              <!-- User login starts here -->
               <div class="form__group form__group">
                 <label for="room_name">Email</label>
+                
                 <input id="username" name="email" type="text" placeholder="Enter Email" />
               </div>
+              
+              <!-- User Password starts here-->
               <div class="form__group">
                 <label for="password">Password</label>
+                
                 <input
                   id="password"
                   name="password"
@@ -49,14 +65,22 @@
                 Login
               </button>
             </form>
-
+           
+            <!-- This part of the  code to have the user sign up -->
+            
             <div class="auth__action">
               <p>Haven't signed up yet?</p>
+               <!-- 
+                  After clicking Sign Up, current page will be taken to "register/" url and
+                  register() will be invoked which will render "login_register.html"
+              -->
               <a href="{% url 'register' %}" class="btn btn--link">Sign Up</a>
             </div>
           </div>
         </div>
       </div>
+      
+      <!-- Signup begins here -->
       {% else %}
 
       <div class="container">
@@ -68,14 +92,19 @@
           </div>
           <div class="layout__body">
             <h2 class="auth__tagline">Find your study partner</h2>
-
+            
+            <!-- The "from tag" will return data into the currrnt url  -->
             <form class="form" action="" method="POST">
               {% csrf_token %}
               {% for field in form %}
+              
               <div class="form__group form__group">
+                 <!-- {{field.label}} will print out all the fields of "user" form  -->
                 <label for="room_name">{{field.label}}</label>
+                <!-- When user input data in the register form, those data will be saved into the {{field}} -->
                 {{field}}
               </div>
+              
               {% endfor %}
               
 
